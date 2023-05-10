@@ -17,11 +17,8 @@ const typeDefs = `
     price: Float!
     thumbnail: String
   }
-
-
 `;
 // Resolvers define how to fetch the types defined in your schema.
-// This resolver retrieves books from the "books" array above.
 const resolvers = {
     Query: {
         Products: async () => {
@@ -36,10 +33,11 @@ const resolvers = {
             }));
             return products;
         },
-        Product: async (parent, { id }) => {
+        Product: async (parent, args) => {
+            const { id } = args;
             const response = await axios.get("https://dummyjson.com/products");
             const productsData = response.data.products;
-            const product = productsData.find(product => product.id === id);
+            const product = productsData.find((product) => Number(product.id) === Number(id));
             return product;
         }
     },
@@ -49,6 +47,6 @@ const server = new ApolloServer({
     resolvers,
 });
 const { url } = await startStandaloneServer(server, {
-    listen: { port: 4101 },
+    listen: { port: 4102 },
 });
 console.log(`🚀  Server ready at: ${url}`);
