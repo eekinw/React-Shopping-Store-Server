@@ -7,6 +7,7 @@ import axios from 'axios';
 const typeDefs = `
   type Query {
     Products: [Product]
+    Product(id: ID!): Product
   }
 
   type Product {
@@ -34,20 +35,20 @@ const resolvers = {
                 thumbnail
             }));
             return products;
+        },
+        Product: async (parent, { id }) => {
+            const response = await axios.get("https://dummyjson.com/products");
+            const productsData = response.data.products;
+            const product = productsData.find(product => product.id === id);
+            return product;
         }
     },
 };
-// The ApolloServer constructor requires two parameters: your schema
-// definition and your set of resolvers.
 const server = new ApolloServer({
     typeDefs,
     resolvers,
 });
-// Passing an ApolloServer instance to the `startStandaloneServer` function:
-//  1. creates an Express app
-//  2. installs your ApolloServer instance as middleware
-//  3. prepares your app to handle incoming requests
 const { url } = await startStandaloneServer(server, {
-    listen: { port: 4100 },
+    listen: { port: 4101 },
 });
 console.log(`🚀  Server ready at: ${url}`);

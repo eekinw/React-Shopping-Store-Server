@@ -9,6 +9,7 @@ import axios from 'axios';
 const typeDefs = `
   type Query {
     Products: [Product]
+    Product(id: ID!): Product
   }
 
   type Product {
@@ -18,12 +19,21 @@ const typeDefs = `
     price: Float!
     thumbnail: String
   }
-
-
 `;
 
+interface ProductArgs {
+  id: number;
+}
+
+interface Product {
+  id: number;
+  title: string;
+  description: string;
+  price: number;
+  thumbnail: string;
+}
+
 // Resolvers define how to fetch the types defined in your schema.
-// This resolver retrieves books from the "books" array above.
 const resolvers = {
     Query: {
         Products: async () => {
@@ -37,6 +47,15 @@ const resolvers = {
                 thumbnail
             }))
             return products;
+        },
+        
+        Product: async (parent: any, args: ProductArgs): Promise<Product | undefined> => {
+          const { id } = args;
+          const response = await axios.get("https://dummyjson.com/products");
+          const productsData: Product[] = response.data.products;
+          const product = productsData.find((product: Product) => Number(product.id) === Number(id));
+          
+          return product;
         }
     },
   };
@@ -49,7 +68,7 @@ const server = new ApolloServer({
   
 
   const { url } = await startStandaloneServer(server, {
-    listen: { port: 4100 },
+    listen: { port: 4101 },
   });
   
   console.log(`🚀  Server ready at: ${url}`);
